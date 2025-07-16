@@ -35,18 +35,26 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y trivy
 
-      - name: Show all requirements.txt (debug)
-        run: find . -name "requirements.txt" -exec echo {} \; -exec cat {} \;
+      - name: Show all requirements.txt files (debug)
+        run: |
+          echo "🔍 Checking for duplicate requirements.txt files"
+          find . -iname 'requirements.txt' -exec echo "--- {} ---" \; -exec cat {} \;
 
       - name: Log in to Red Hat registry
         run: |
           echo "${{ secrets.REDHAT_REGISTRY_TOKEN }}" | docker login registry.redhat.io -u "${{ secrets.REDHAT_REGISTRY_USER }}" --password-stdin
 
+      - name: Create build context (debug)
+        run: |
+          ansible-builder create
+          echo "--- context/requirements.txt ---"
+          cat context/requirements.txt
+
       - name: Build Execution Environment (EE)
         run: |
           ansible-builder build -v3 --tag $IMAGE_NAME:$TAG --no-cache
 
-      - name: Run Trivy scan
+      - name: Run Trivy vulnerability scan
         run: |
           trivy image --severity CRITICAL,HIGH --no-progress $IMAGE_NAME:$TAG
 
@@ -59,12 +67,3 @@ jobs:
       - name: Push EE to Docker Hub
         run: |
           docker push $IMAGE_NAME:$TAG
-
-      - name: Debug builder context
-        run: |
-          ansible-builder create
-          echo "--- Context Files ---"
-          find context/
-          echo "--- Context requirements.txt ---"
-          cat context/requirements.txt
-          
