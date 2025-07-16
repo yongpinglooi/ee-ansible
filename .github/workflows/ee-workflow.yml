@@ -29,6 +29,7 @@ jobs:
 
       - name: 🧪 Install Trivy
         run: |
+          sudo apt-get update
           sudo apt-get install -y wget apt-transport-https gnupg lsb-release
           wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
           echo "deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main" | sudo tee /etc/apt/sources.list.d/trivy.list
@@ -39,7 +40,7 @@ jobs:
         run: |
           echo "${{ secrets.REDHAT_REGISTRY_TOKEN }}" | docker login registry.redhat.io -u "${{ secrets.REDHAT_REGISTRY_USER }}" --password-stdin
 
-      - name: 📦 Create build context (debug)
+      - name: 📦 Create build context
         run: |
           ansible-builder create
           echo "--- Files in context/ ---"
@@ -49,9 +50,14 @@ jobs:
         run: |
           ansible-builder build -v3 --tag $IMAGE_NAME:$TAG --no-cache
 
-      - name: 🔬 Run Trivy scan
-        run: |
-          trivy image --severity CRITICAL,HIGH --no-progress localhost:$IMAGE_NAME:$TAG
+      - name: 🐳 Verify Docker image
+        run: docker images
+
+      - name: 💾 Save Docker image to tarball
+        run: docker save -o ee-image.tar $IMAGE_NAME:$TAG
+
+      - name: 🔬 Run Trivy scan on image tarball
+        run: trivy image --severity CRITICAL,HIGH --no-progress --input ee-image.tar
 
       - name: 🔐 Log in to Docker Hub
         uses: docker/login-action@v3
@@ -60,5 +66,4 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: 🚀 Push EE to Docker Hub
-        run: |
-          docker push $IMAGE_NAME:$TAG
+        run: docker push $IMAGE_NAME:$TAG
