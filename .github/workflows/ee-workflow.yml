@@ -14,20 +14,20 @@ jobs:
       TAG: latest
 
     steps:
-      - name: Checkout repository
+      - name: 📥 Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Python
+      - name: 🐍 Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
-      - name: Install ansible-builder
+      - name: ⚙️ Install ansible-builder
         run: |
           python -m pip install --upgrade pip
           pip install ansible-builder
 
-      - name: Install Trivy
+      - name: 🧪 Install Trivy
         run: |
           sudo apt-get install -y wget apt-transport-https gnupg lsb-release
           wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
@@ -35,35 +35,37 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y trivy
 
-      - name: Show all requirements.txt files (debug)
+      - name: 🔍 Show all requirements.txt files (debug)
         run: |
-          echo "🔍 Checking for duplicate requirements.txt files"
+          echo "=== Searching for all requirements.txt ==="
           find . -iname 'requirements.txt' -exec echo "--- {} ---" \; -exec cat {} \;
 
-      - name: Log in to Red Hat registry
+      - name: 🔐 Log in to Red Hat registry
         run: |
           echo "${{ secrets.REDHAT_REGISTRY_TOKEN }}" | docker login registry.redhat.io -u "${{ secrets.REDHAT_REGISTRY_USER }}" --password-stdin
 
-      - name: Create build context (debug)
+      - name: 📦 Create build context (and inspect it)
         run: |
-          ansible-builder create
-          echo "--- context/requirements.txt ---"
-          cat context/requirements.txt
+          ansible-builder create --no-cache
+          echo "--- 📂 Files in context/ ---"
+          ls -l context/
+          echo "--- 📄 context/requirements.txt ---"
+          cat context/requirements.txt || echo "❌ Missing context/requirements.txt"
 
-      - name: Build Execution Environment (EE)
+      - name: 🛠️ Build Execution Environment (EE)
         run: |
           ansible-builder build -v3 --tag $IMAGE_NAME:$TAG --no-cache
 
-      - name: Run Trivy vulnerability scan
+      - name: 🔬 Run Trivy scan
         run: |
           trivy image --severity CRITICAL,HIGH --no-progress $IMAGE_NAME:$TAG
 
-      - name: Log in to Docker Hub
+      - name: 🔐 Log in to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Push EE to Docker Hub
+      - name: 🚀 Push EE to Docker Hub
         run: |
           docker push $IMAGE_NAME:$TAG
