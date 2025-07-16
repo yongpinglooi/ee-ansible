@@ -13,7 +13,7 @@ dependencies:
 
 additional_build_files:
   - src: files/
-    dest: /tmp/files/
+    dest: tmp/files/
 
 options:
   package_manager_path: /usr/bin/microdnf
