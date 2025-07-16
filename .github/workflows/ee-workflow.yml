@@ -40,26 +40,18 @@ jobs:
           echo "${{ secrets.REDHAT_REGISTRY_TOKEN }}" | docker login registry.redhat.io -u "${{ secrets.REDHAT_REGISTRY_USER }}" --password-stdin
 
       - name: 📦 Create build context
-        run: ansible-builder create
+        run: |
+          ansible-builder create
+          echo "--- Files in context/ ---"
+          ls -l context/
 
       - name: 🛠️ Build Execution Environment
         run: |
-          ansible-builder build -v3 --tag localhost/$IMAGE_NAME:$TAG --no-cache
+          ansible-builder build -v3 --tag $IMAGE_NAME:$TAG --container-runtime docker --no-cache
 
       - name: 🔬 Run Trivy scan
         run: |
-          trivy image --severity CRITICAL,HIGH --no-progress localhost/$IMAGE_NAME:$TAG
-
-      - name: 💾 Save image as tar using Buildah
-        run: |
-          echo "Saving image localhost/$IMAGE_NAME:$TAG to ee-image.tar"
-          buildah push localhost/$IMAGE_NAME:$TAG docker-archive:ee-image.tar
-
-      - name: 📤 Upload image artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: ansible-ee-image
-          path: ee-image.tar
+          trivy image --severity CRITICAL,HIGH --no-progress $IMAGE_NAME:$TAG
 
       - name: 🔐 Log in to Docker Hub
         uses: docker/login-action@v3
@@ -69,5 +61,4 @@ jobs:
 
       - name: 🚀 Push EE to Docker Hub
         run: |
-          buildah tag localhost/$IMAGE_NAME:$TAG $IMAGE_NAME:$TAG
           docker push $IMAGE_NAME:$TAG
