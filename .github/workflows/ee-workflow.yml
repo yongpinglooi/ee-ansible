@@ -54,7 +54,7 @@ jobs:
         run: docker images
 
       - name: 💾 Save Docker image to tarball
-        run: docker save -o ee-image.tar $IMAGE_NAME:$TAG
+        run: docker save -o ee-image.tar localhost/$IMAGE_NAME:$TAG
 
       - name: 🔬 Run Trivy scan on image tarball
         run: trivy image --severity CRITICAL,HIGH --no-progress --input ee-image.tar
