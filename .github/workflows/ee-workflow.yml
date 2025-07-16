@@ -1,4 +1,4 @@
-name: Build Ansible EE (Red Hat base)
+name: Build Ansible EE (Inline Dependencies)
 
 on:
   push:
@@ -35,24 +35,17 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y trivy
 
-      - name: 🔍 Show all requirements.txt files (debug)
-        run: |
-          echo "=== Searching for all requirements.txt ==="
-          find . -iname 'requirements.txt' -exec echo "--- {} ---" \; -exec cat {} \;
-
       - name: 🔐 Log in to Red Hat registry
         run: |
           echo "${{ secrets.REDHAT_REGISTRY_TOKEN }}" | docker login registry.redhat.io -u "${{ secrets.REDHAT_REGISTRY_USER }}" --password-stdin
 
-      - name: 📦 Create build context (and inspect it)
+      - name: 📦 Create build context (debug)
         run: |
           ansible-builder create
-          echo "--- 📂 Files in context/ ---"
+          echo "--- Files in context/ ---"
           ls -l context/
-          echo "--- 📄 context/requirements.txt ---"
-          cat context/requirements.txt || echo "❌ Missing context/requirements.txt"
 
-      - name: 🛠️ Build Execution Environment (EE)
+      - name: 🛠️ Build Execution Environment
         run: |
           ansible-builder build -v3 --tag $IMAGE_NAME:$TAG --no-cache
 

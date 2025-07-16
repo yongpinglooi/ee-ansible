@@ -8,8 +8,24 @@ build_arg_defaults:
   ANSIBLE_GALAXY_CLI_COLLECTION_OPTS: '--ignore-certs'
 
 dependencies:
-  python: requirements.txt
-  galaxy: requirements.yml
+  python:
+    - requests
+    - netaddr>=0.10.1
+
+  galaxy:
+    collections:
+      - name: amazon.aws
+      - name: ansible.netcommon
+      - name: ansible.network
+      - name: ansible.posix
+      - name: ansible.security
+      - name: ansible.utils
+      - name: fortigate.fortios
+      - name: arista.eos
+      - name: cisco.asa
+      - name: cisco.ios
+      - name: cisco.iosxr
+      - name: cisco.nxos
 
 options:
   package_manager_path: /usr/bin/microdnf
