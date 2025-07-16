@@ -41,7 +41,7 @@ jobs:
 
       - name: Build Execution Environment (EE)
         run: |
-          ansible-builder build -v3 --tag $IMAGE_NAME:$TAG
+          ansible-builder build -v3 --tag $IMAGE_NAME:$TAG --no-cache
 
       - name: Run Trivy scan
         run: |
