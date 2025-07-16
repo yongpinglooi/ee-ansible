@@ -1,0 +1,58 @@
+name: Build Ansible EE (Red Hat base)
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build-ee:
+    runs-on: ubuntu-latest
+
+    env:
+      IMAGE_NAME: yourdockerhubuser/ee-supported-rhel8
+      TAG: latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install ansible-builder
+        run: |
+          pip install --upgrade pip
+          pip install ansible-builder
+
+      - name: Install Trivy
+        run: |
+          sudo apt-get install -y wget apt-transport-https gnupg lsb-release
+          wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
+          echo "deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main" | sudo tee /etc/apt/sources.list.d/trivy.list
+          sudo apt-get update
+          sudo apt-get install -y trivy
+
+      - name: Log in to Red Hat registry
+        run: |
+          echo "${{ secrets.REDHAT_REGISTRY_TOKEN }}" | docker login registry.redhat.io -u "${{ secrets.REDHAT_REGISTRY_USER }}" --password-stdin
+
+      - name: Build Execution Environment (EE)
+        run: |
+          ansible-builder build -v3 --tag $IMAGE_NAME:$TAG
+
+      - name: Run Trivy scan
+        run: |
+          trivy image --severity CRITICAL,HIGH --no-progress $IMAGE_NAME:$TAG
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Push EE to Docker Hub
+        run: |
+          docker push $IMAGE_NAME:$TAG
