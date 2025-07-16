@@ -51,7 +51,7 @@ jobs:
 
       - name: 🔬 Run Trivy scan
         run: |
-          trivy image --severity CRITICAL,HIGH --no-progress $IMAGE_NAME:$TAG
+          trivy image --severity CRITICAL,HIGH --no-progress localhost:$IMAGE_NAME:$TAG
 
       - name: 🔐 Log in to Docker Hub
         uses: docker/login-action@v3
