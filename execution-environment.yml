@@ -7,28 +7,10 @@ images:
 build_arg_defaults:
   ANSIBLE_GALAXY_CLI_COLLECTION_OPTS: '--ignore-certs'
 
-exclude_paths:
-  - requirements.txt
-  - src/requirements.txt
-  
 dependencies:
-  python:
-    - requests
+  galaxy: requirements.yml
+  python: requirements.txt
 
-  galaxy:
-    collections:
-      - name: amazon.aws
-      - name: ansible.netcommon
-      - name: ansible.network
-      - name: ansible.posix
-      - name: ansible.security
-      - name: ansible.utils
-      - name: fortinet.fortios
-      - name: arista.eos
-      - name: cisco.asa
-      - name: cisco.ios
-      - name: cisco.iosxr
-      - name: cisco.nxos
-
-options:
-  package_manager_path: /usr/bin/microdnf
+additional_build_steps:
+    prepend_base:
+        - RUN $PYCMD -m pip install --upgrade pip setuptools
