@@ -11,6 +11,9 @@ dependencies:
   galaxy: requirements.yml
   python: requirements.txt
 
+options:
+    package_manager_path: /usr/bin/microdnf
+
 additional_build_steps:
     prepend_base:
         - RUN $PYCMD -m pip install --upgrade pip setuptools
