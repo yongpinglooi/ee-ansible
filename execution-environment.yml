@@ -20,7 +20,7 @@ dependencies:
       - name: ansible.posix
       - name: ansible.security
       - name: ansible.utils
-      - name: fortigate.fortios
+      - name: fortinet.fortios
       - name: arista.eos
       - name: cisco.asa
       - name: cisco.ios
