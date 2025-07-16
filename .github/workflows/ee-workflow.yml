@@ -46,7 +46,7 @@ jobs:
 
       - name: 📦 Create build context (and inspect it)
         run: |
-          ansible-builder create --no-cache
+          ansible-builder create
           echo "--- 📂 Files in context/ ---"
           ls -l context/
           echo "--- 📄 context/requirements.txt ---"
