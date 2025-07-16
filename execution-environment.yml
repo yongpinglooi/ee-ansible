@@ -10,7 +10,6 @@ build_arg_defaults:
 dependencies:
   python:
     - requests
-    - netaddr>=0.10.1
 
   galaxy:
     collections:
