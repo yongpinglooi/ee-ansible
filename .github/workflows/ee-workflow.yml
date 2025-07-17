@@ -10,11 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-<<<<<<< HEAD
-      IMAGE_NAME: yongpinglooi/ee-supported-rhel8
-=======
       IMAGE_NAME: yongpinglooi/ee-test-rhel8
->>>>>>> new_ee
       TAG: latest
 
     steps:
