@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      IMAGE_NAME: yourdockerhubuser/ee-supported-rhel8
+      IMAGE_NAME: yongpinglooi/ee-test-rhel8
       TAG: latest
 
     steps:
