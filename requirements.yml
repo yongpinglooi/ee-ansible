@@ -4,6 +4,7 @@ collections:
   - name: ansible.netcommon
   - name: ansible.network
   - name: ansible.posix
+  - name: ansible.windows
   - name: ansible.security
   - name: ansible.utils
   - name: fortinet.fortios
