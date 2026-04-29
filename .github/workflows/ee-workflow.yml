@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      IMAGE_NAME: yongpinglooi/ee-network-all-modules-2026April29
+      IMAGE_NAME: yongpinglooi/ee-network-all-modules-2026april29
       TAG: latest
 
     steps:
